@@ -1,14 +1,17 @@
-import 'jest'
-import { app } from '../server'
+import { app } from '../app'
 
 describe('Auth', () => {
+  afterAll(async () => {
+    await app.app.close()
+  })
+
   it('should not be able to login', async () => {
     const response = await app.app.inject({
       method: 'POST',
       url: '/auth/login',
       payload: {
-        email: 'test@gmail.com',
-        password: '123456',
+        email: 'fake@mail.com',
+        password: 'wrong',
       },
     })
 

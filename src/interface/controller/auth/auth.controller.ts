@@ -22,6 +22,12 @@ class AuthController {
       return reply.code(500).send({ message: error.message })
     }
   }
+  static async profile(req: FastifyRequest, reply: FastifyReply) {
+    return reply.send({
+      userId: req.user.id,
+      message: 'Profile loaded',
+    })
+  }
 }
 
 export default AuthController

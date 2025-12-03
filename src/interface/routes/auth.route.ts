@@ -1,4 +1,4 @@
-import { FastifyInstance, FastifyPluginOptions } from 'fastify'
+import { FastifyInstance } from 'fastify'
 import AuthController from '../controller/auth/auth.controller'
 import { UserInterface } from '~/domain/interface/users.interface'
 import { LoginSchema } from '~/domain/validation/auth.validate'
@@ -6,16 +6,18 @@ import { LoginSchema } from '~/domain/validation/auth.validate'
 class AuthRoute {
   public prefix_route = '/auth'
 
-  async routes(fastify: FastifyInstance, _options: FastifyPluginOptions, _done: any) {
+  async routes(fastify: FastifyInstance) {
     fastify.post<{ Body: UserInterface }>(
       '/login',
       {
-        schema: {
-          body: LoginSchema,
-        },
+        schema: { body: LoginSchema },
       },
       AuthController.login,
     )
+
+    fastify.get('/profile', { preHandler: [fastify.authenticate] }, async (req, reply) => {
+      return reply.send({ ok: true })
+    })
   }
 }
 

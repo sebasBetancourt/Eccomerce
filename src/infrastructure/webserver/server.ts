@@ -9,33 +9,40 @@ class App {
   constructor(appInit: { plugins: any; routes: any }) {
     this.app = fastify({
       logger: {
-        prettyPrint: {
-          translateTime: 'SYS:h:MM:ss',
-          colorize: true,
-          ignore: 'pid,hostname',
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            translateTime: 'SYS:h:MM:ss',
+            colorize: true,
+            ignore: 'pid,hostname',
+          },
         },
       },
     })
+
+    console.log('🔥 Iniciando servidor DESDE ESTE ARCHIVO...')
+
     this.app.addHook('preHandler', (req, _reply, done) => {
       if (req.body) {
         req.log.info({ body: req.body }, 'parsed body')
       }
       done()
     })
+
     this.register(appInit.plugins)
     this.routes(appInit.routes)
   }
 
-  private register(plugins: { forEach: (arg0: (plugin: any) => void) => void }) {
+  private register(plugins: any[]) {
     plugins.forEach((plugin) => {
       this.app.register(plugin)
     })
   }
 
-  public routes(routes: { forEach: (arg0: (routes: any) => void) => void }) {
+  public routes(routes: any[]) {
     routes.forEach((route) => {
       const router = new route()
-      this.app.register(router.routes, { prefix: router.prefix_route })
+      this.app.register(router.routes.bind(router), { prefix: router.prefix_route })
     })
 
     this.app.get('/healthcheck', async (request, reply) => {
@@ -44,7 +51,7 @@ class App {
   }
 
   public listen() {
-    this.app.listen(this.app_port, (err) => {
+    this.app.listen({ port: this.app_port }, (err) => {
       if (err) {
         this.app.log.fatal({ msg: `Application startup error`, err })
         process.exit(1)

@@ -10,6 +10,10 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": ".",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./infrastructure/types"
+    ],
     "incremental": false,
     "strict": false,
     "esModuleInterop": true,
